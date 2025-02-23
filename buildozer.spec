@@ -7,8 +7,8 @@ source.include_exts = py,png,jpg,kv,atlas
 requirements = kivy, requests
 version = 1.0
 version.name = 1.0
-presplash.filename = presplash.png
-icon.filename = icon.png
+presplash.filename = data/presplash.png
+icon.filename = data/icon.png
 
 [android]
 android.api = 19
