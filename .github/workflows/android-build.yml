@@ -25,6 +25,34 @@ jobs:
           pip3 install --user --upgrade Cython==0.29.33 virtualenv
           pip3 install --user -r requirements.txt
           pip3 install buildozer
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses
+        run: yes 'y' | sudo ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses
+
+      - name: Install Android SDK Build Tools
+        run: sudo ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "build-tools;36.0.0"  # Используем стабильную версию
+
+      - name: Check Aidl
+        run: |
+          if [ -d "${ANDROID_HOME}/build-tools/36.0.0" ]; then
+            echo "Build Tools found!"
+            if [ -f "${ANDROID_HOME}/build-tools/36.0.0/aidl" ]; then
+              echo "Aidl found!"
+            else
+              echo "Aidl not found in build-tools!"
+              exit 1
+            fi
+          else
+            echo "Build Tools not found!"
+            exit 1
+          fi
 
       - name: Build APK
         run: |
