@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build APK for Android 4.4
 
 on:
   push:
@@ -8,58 +8,63 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      # Шаг 1: Клонируем репозиторий
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      # Шаг 2: Устанавливаем зависимости для сборки
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
-          pip3 install --user --upgrade Cython==0.29.33 virtualenv
-          pip3 install --user -r requirements.txt
-          pip3 install buildozer
-      - name: Setup Java JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+          sudo apt update
+          sudo apt install -y python3-dev build-essential git
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install buildozer
 
-      - name: Accept Android SDK Licenses
-        run: yes 'y' | sudo ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses
-
-      - name: Install Android SDK Build Tools
-        run: sudo ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "build-tools;36.0.0"  # Используем стабильную версию
-
-      - name: Check Aidl
+      # Шаг 3: Устанавливаем зависимости для Android
+      - name: Install Android dependencies
         run: |
-          if [ -d "${ANDROID_HOME}/build-tools/36.0.0" ]; then
-            echo "Build Tools found!"
-            if [ -f "${ANDROID_HOME}/build-tools/36.0.0/aidl" ]; then
-              echo "Aidl found!"
-            else
-              echo "Aidl not found in build-tools!"
-              exit 1
-            fi
-          else
-            echo "Build Tools not found!"
-            exit 1
-          fi
+          sudo apt install -y openjdk-8-jdk
+          sudo apt install -y zipalign
+          sudo apt install -y adb
+          sudo apt install -y libncurses5 libstdc++6 lib32z1 lib32ncurses5
+          sudo apt install -y lib32stdc++6
 
+      # Шаг 4: Устанавливаем Android SDK и NDK
+      - name: Install Android SDK and NDK
+        run: |
+          # Устанавливаем Android SDK
+          wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip
+          unzip commandlinetools-linux-7302050_latest.zip -d $HOME/android-sdk
+          rm commandlinetools-linux-7302050_latest.zip
+          
+          # Устанавливаем необходимые компоненты SDK
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-19" "build-tools;29.0.3" "ndk;21.3.6528147"
+
+      # Шаг 5: Принятие лицензий для SDK и NDK
+      - name: Accept SDK/NDK licenses
+        run: |
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager "ndk-bundle"
+
+      # Шаг 6: Собираем APK
       - name: Build APK
         run: |
-          buildozer android debug
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/bin:$ANDROID_HOME/platform-tools:$PATH
+          buildozer android debug deploy run
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      # Шаг 7: Архивируем APK файл
+      - name: Archive APK
+        uses: actions/upload-artifact@v2
         with:
-          name: app-debug.apk
-          path: bin/myapp-*-debug.apk
+          name: android-apk
+          path: bin/*.apk
