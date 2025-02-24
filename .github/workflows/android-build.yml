@@ -47,7 +47,7 @@ jobs:
 
           # Create the expected directory structure for cmdline-tools
           mkdir -p $HOME/android-sdk/cmdline-tools/path1
-          mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools
+          mv $HOME/android-sdk/cmdline-tools/path3
           rmdir $HOME/android-sdk/cmdline-tools/path2
 
           # Install required SDK components with explicit SDK root
