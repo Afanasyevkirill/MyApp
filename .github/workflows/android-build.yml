@@ -41,39 +41,29 @@ jobs:
       # Step 5: Install Android SDK and NDK
       - name: Install Android SDK and NDK
         run: |
-          wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip
-          unzip commandlinetools-linux-7302050_latest.zip -d $HOME/android-sdk-zip
-          rm commandlinetools-linux-7302050_latest.zip
-          echo "Directory contents after unzip:"
-          ls -la $HOME/android-sdk-zip/cmdline-tools/
-          if [ -d "$HOME/android-sdk/cmdline-tools/latest" ]; then
-            rm -rf "$HOME/android-sdk/cmdline-tools/latest"
-          fi
-          mkdir -p $HOME/android-sdk/cmdline-tools/latest
-          if ls $HOME/android-sdk/cmdline-tools/* >/dev/null 2>&1; then
-            mv $HOME/android-sdk-zip/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
-          else
-            echo "No files to move in $HOME/android-sdk/cmdline-tools/"
-          fi
-          echo "Directory contents after move:"
-          ls -la $HOME/android-sdk/cmdline-tools/latest/
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;29.0.3" "ndk;21.3.6528147"
+          wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip # Пример старой версии
           
-      # Step 6: Accept SDK/NDK licenses
-      - name: Accept SDK/NDK licenses
-        run: |
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "ndk-bundle"
+          unzip commandlinetools-linux-6609375_latest.zip -d $HOME/android-sdk-zip
+          
+          rm commandlinetools-linux-6609375_latest.zip
+          
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          mv $HOME/android-sdk-zip/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
 
-      # Step 7: Build APK
+          # Принимаем лицензии (обязательно перед установкой компонентов)
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
+
+          # Устанавливаем необходимые компоненты SDK
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;19.2.5345600" # Заменил версии
+          
+      # Step 6: Build APK
       - name: Build APK
         run: |
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
           buildozer android debug deploy run
 
-      # Step 8: Archive APK file
+      # Step 7: Archive APK file
       - name: Archive APK
         uses: actions/upload-artifact@v4
         with:
