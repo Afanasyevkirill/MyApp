@@ -48,7 +48,7 @@ jobs:
           rm commandlinetools-linux-6609375_latest.zip
           
           mkdir -p $HOME/android-sdk/cmdline-tools/latest
-          mv $HOME/android-sdk-zip/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+          mv $HOME/android-sdk-zip/tools/* $HOME/android-sdk/cmdline-tools/latest/
 
           # Принимаем лицензии (обязательно перед установкой компонентов)
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
