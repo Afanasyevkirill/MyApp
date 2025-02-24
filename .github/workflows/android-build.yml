@@ -48,14 +48,14 @@ jobs:
           if [ -d "$HOME/android-sdk/cmdline-tools/latest" ]; then
             rm -rf "$HOME/android-sdk/cmdline-tools/latest"
           fi
-          mkdir -p $HOME/android-sdk/cmdline-tools/latest
-          if ls $HOME/android-sdk/cmdline-tools/* >/dev/null 2>&1; then
-            mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
-          else
-            echo "No files to move in $HOME/android-sdk/cmdline-tools/"
-          fi
-          echo "Directory contents after move:"
-          ls -la $HOME/android-sdk/cmdline-tools/latest/
+          # mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          # if ls $HOME/android-sdk/cmdline-tools/* >/dev/null 2>&1; then
+          #   mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+          # else
+          #   echo "No files to move in $HOME/android-sdk/cmdline-tools/"
+          # fi
+          # echo "Directory contents after move:"
+          # ls -la $HOME/android-sdk/cmdline-tools/latest/
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;29.0.3" "ndk;21.3.6528147"
           
