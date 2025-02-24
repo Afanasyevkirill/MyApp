@@ -44,8 +44,10 @@ jobs:
           unzip commandlinetools-linux-7302050_latest.zip -d $HOME/android-sdk
           rm commandlinetools-linux-7302050_latest.zip
           
-          # Создаём символьную ссылку на cmdline-tools/latest
-          ln -s $HOME/android-sdk/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          # Перемещаем содержимое cmdline-tools в нужную структуру
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+          rmdir $HOME/android-sdk/cmdline-tools
 
           # Устанавливаем необходимые компоненты SDK
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
