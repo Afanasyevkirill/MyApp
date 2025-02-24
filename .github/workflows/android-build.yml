@@ -46,9 +46,9 @@ jobs:
           rm commandlinetools-linux-7302050_latest.zip
 
           # Create the expected directory structure for cmdline-tools
-          mkdir -p $HOME/android-sdk/cmdline-tools
+          mkdir -p $HOME/android-sdk/cmdline-tools/path1
           mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools
-          rmdir $HOME/android-sdk/cmdline-tools
+          rmdir $HOME/android-sdk/cmdline-tools/path2
 
           # Install required SDK components with explicit SDK root
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
