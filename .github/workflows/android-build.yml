@@ -10,16 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Шаг 1: Клонируем репозиторий
+      # Step 1: Clone the repository
       - name: Checkout repository
         uses: actions/checkout@v2
         
-      # Шаг 2: Устанавливаем зависимости для сборки
+      # Step 2: Set up Python 3.8
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
 
+      # Step 3: Install build dependencies
       - name: Install dependencies
         run: |
           sudo apt update
@@ -28,7 +29,7 @@ jobs:
           pip install -r requirements.txt
           pip install buildozer
 
-      # Шаг 3: Устанавливаем зависимости для Android
+      # Step 4: Install Android dependencies
       - name: Install Android dependencies
         run: |
           sudo apt install -y openjdk-8-jdk
@@ -36,32 +37,37 @@ jobs:
           sudo apt install -y adb
           sudo apt install -y libstdc++6 lib32z1
 
-      # Шаг 4: Устанавливаем Android SDK и NDK
+      # Step 5: Install Android SDK and NDK
       - name: Install Android SDK and NDK
         run: |
-          # Устанавливаем Android SDK
+          # Download and extract Android command-line tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip
           unzip commandlinetools-linux-7302050_latest.zip -d $HOME/android-sdk
           rm commandlinetools-linux-7302050_latest.zip
 
-          # Устанавливаем необходимые компоненты SDK
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-19" "build-tools;29.0.3" "ndk;21.3.6528147"
+          # Create the expected directory structure for cmdline-tools
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+          rmdir $HOME/android-sdk/cmdline-tools
 
-      # Шаг 5: Принятие лицензий для SDK и NDK
+          # Install required SDK components with explicit SDK root
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;29.0.3" "ndk;21.3.6528147"
+
+      # Step 6: Accept SDK/NDK licenses
       - name: Accept SDK/NDK licenses
         run: |
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager "ndk-bundle"
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "ndk-bundle"
 
-      # Шаг 6: Собираем APK
+      # Step 7: Build APK
       - name: Build APK
         run: |
-          export ANDROIDSdk_HOME=$HOME/android-sdk
-          export PATH=${ANDROIDSdk_HOME}/cmdline-tools/bin:${ANDROIDSdk_HOME}/platform-tools:$PATH
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
           buildozer android debug deploy run
 
-      # Шаг 7: Архивируем APK файл
+      # Step 8: Archive APK file
       - name: Archive APK
         uses: actions/upload-artifact@v4
         with:
