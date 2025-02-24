@@ -40,20 +40,25 @@ jobs:
       # Step 5: Install Android SDK and NDK
       - name: Install Android SDK and NDK
         run: |
-          # Download and extract Android command-line tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip
           unzip commandlinetools-linux-7302050_latest.zip -d $HOME/android-sdk
           rm commandlinetools-linux-7302050_latest.zip
-
-          # Create the expected directory structure for cmdline-tools
-          mkdir -p $HOME/android-sdk/cmdline-tools/path1
-          mv $HOME/android-sdk/cmdline-tools/path3
-          rmdir $HOME/android-sdk/cmdline-tools/path2
-
-          # Install required SDK components with explicit SDK root
+          echo "Directory contents after unzip:"
+          ls -la $HOME/android-sdk/cmdline-tools/
+          if [ -d "$HOME/android-sdk/cmdline-tools/latest" ]; then
+            rm -rf "$HOME/android-sdk/cmdline-tools/latest"
+          fi
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          if ls $HOME/android-sdk/cmdline-tools/* >/dev/null 2>&1; then
+            mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+          else
+            echo "No files to move in $HOME/android-sdk/cmdline-tools/"
+          fi
+          echo "Directory contents after move:"
+          ls -la $HOME/android-sdk/cmdline-tools/latest/
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;29.0.3" "ndk;21.3.6528147"
-
+          
       # Step 6: Accept SDK/NDK licenses
       - name: Accept SDK/NDK licenses
         run: |
