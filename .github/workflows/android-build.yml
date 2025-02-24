@@ -43,27 +43,22 @@ jobs:
           wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip
           unzip commandlinetools-linux-7302050_latest.zip -d $HOME/android-sdk
           rm commandlinetools-linux-7302050_latest.zip
-          
-          # Перемещаем содержимое cmdline-tools в нужную структуру
-          mkdir -p $HOME/android-sdk/cmdline-tools/latest
-          mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
-          rmdir $HOME/android-sdk/cmdline-tools
 
           # Устанавливаем необходимые компоненты SDK
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-19" "build-tools;29.0.3" "ndk;21.3.6528147"
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-19" "build-tools;29.0.3" "ndk;21.3.6528147"
 
       # Шаг 5: Принятие лицензий для SDK и NDK
       - name: Accept SDK/NDK licenses
         run: |
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "ndk-bundle"
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager "ndk-bundle"
 
       # Шаг 6: Собираем APK
       - name: Build APK
         run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          export ANDROIDSdk_HOME=$HOME/android-sdk
+          export PATH=${ANDROIDSdk_HOME}/cmdline-tools/bin:${ANDROIDSdk_HOME}/platform-tools:$PATH
           buildozer android debug deploy run
 
       # Шаг 7: Архивируем APK файл
