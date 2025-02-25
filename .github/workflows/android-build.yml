@@ -33,6 +33,12 @@ jobs:
           pip install cython
       - name: Check version
         run: |
+          echo "Проверяем PATH"
+          echo "PATH: $PATH"
+          if ! which libtool; then
+            echo "libtool not found in PATH, adding /usr/bin"
+            echo "PATH=$PATH:/usr/bin" >> $GITHUB_ENV
+          fi
           echo "Устанавливаем autoconf"
           sudo apt install -y autoconf
           sudo apt-get install -y libtool
