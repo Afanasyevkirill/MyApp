@@ -101,7 +101,7 @@ jobs:
           export M4_OPTIONS="-D__M4__"
       - name: Run autoreconf manually
         run: |
-          cd /path/to/your/project
+          cd /home/runner/work/MyApp/MyApp
           autoreconf -i
 
       # Step 6: Build APK
