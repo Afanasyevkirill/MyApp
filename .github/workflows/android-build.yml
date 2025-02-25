@@ -54,7 +54,7 @@ jobs:
           yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
 
           # Устанавливаем необходимые компоненты SDK
-          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;19.2.5345600" # Заменил версии
+          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;25.2.9519653" # Заменил версии
           
       # Step 6: Build APK
       - name: Build APK
