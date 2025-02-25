@@ -34,7 +34,8 @@ jobs:
           pip install cython
       - name: Check version
         run: |
-          sudo apt-cache search libtinfo
+          sudo apt install libtinfo6
+          sudo apt install libncurses-dev
 
           echo "Проверяем PATH"
           
