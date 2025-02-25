@@ -32,11 +32,15 @@ jobs:
           pip install -r requirements.txt
           pip install buildozer
           pip install cython
+      - name: List directories
+        run: |
+          ls -R /home/runner/work/
+
       - name: Check version
         run: |
           sudo apt install libtinfo6
           sudo apt install libncurses-dev
-
+  
           echo "Проверяем PATH"
           
           echo "PATH: $PATH"
