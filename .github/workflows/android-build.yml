@@ -50,6 +50,7 @@ jobs:
           dpkg -l | grep libtool
           echo "Смотрим, где находятся файлы libtool"
           dpkg -L libtool
+          sudo ln -s /usr/bin/libtoolize /usr/bin/libtool
           ls -l /usr/bin/libtool
           autoconf --version
           libtool --version
