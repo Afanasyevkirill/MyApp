@@ -119,7 +119,7 @@ android.ndk_api = 19
 #android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
-android.ndk_path = /home/runner/android-sdk/ndk/21.3.6528147/
+android.ndk_path = /home/runner/android-sdk/ndk/19.2.5345600/
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
 android.sdk_path = /home/runner/android-sdk/
