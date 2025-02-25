@@ -33,6 +33,8 @@ jobs:
           pip install cython
       - name: Check version
         run: |
+          echo "Устанавливаем autoconf"
+          sudo apt install -y autoconf
           autoconf --version
           libtool --version
       # Step 4: Install Android dependencies
