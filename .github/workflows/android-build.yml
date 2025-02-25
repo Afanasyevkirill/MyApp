@@ -83,7 +83,11 @@ jobs:
       - name: Apply m4_pattern_allow
         run: |
           echo "m4_pattern_allow([LT_SYS_SYMBOL_USCORE])" >> configure.ac
-    
+      - name: Set environment variables
+        run: |
+          export LT_SYS_SYMBOL_USCORE=yes
+          export M4_OPTIONS="-D__M4__"
+
       # Step 6: Build APK
       - name: Build APK
         run: |
