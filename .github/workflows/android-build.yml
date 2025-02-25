@@ -41,6 +41,7 @@ jobs:
             export PATH=$PATH:/usr/bin
             echo "Updated PATH: $PATH" #Проверка, что PATH обновился.
           fi
+          ls -l /usr/bin/libtool
           echo "Устанавливаем autoconf"
           sudo apt install -y autoconf
           sudo apt-get install -y libtool
