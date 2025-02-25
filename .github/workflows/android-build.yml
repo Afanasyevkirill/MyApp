@@ -99,10 +99,6 @@ jobs:
         run: |
           export LT_SYS_SYMBOL_USCORE=yes
           export M4_OPTIONS="-D__M4__"
-      - name: Run autoreconf manually
-        run: |
-          cd /home/runner/work/MyApp/MyApp
-          autoreconf -i
 
       # Step 6: Build APK
       - name: Build APK
@@ -114,14 +110,7 @@ jobs:
           export PATH=$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
           ls -la $HOME/android-sdk/tools/bin
           buildozer -v android debug 2>&1 | tee buildozer_output.log
-      - name: Find and display configure.ac
-        if: failure()  # Выполняется, если предыдущий шаг завершился с ошибкой
-        run: |
-          echo "Looking for configure.ac files in the build process..."
-          # Ищем configure.ac в директориях, которые использует buildozer
-          find . -name "configure.ac" -exec echo "Found configure.ac in {}" \; -exec cat {} \;
-          # Если он в подмодулях python-for-android
-          find ~/.buildozer -name "configure.ac" -exec echo "Found configure.ac in {}" \; -exec cat {} \;
+
 
       - name: Upload logs
         if: always()  # Выполняется всегда
