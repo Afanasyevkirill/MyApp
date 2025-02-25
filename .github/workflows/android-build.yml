@@ -24,6 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
+          sudo apt upgrade
           sudo apt install -y python3-dev build-essential git
           sudo apt install -y autoconf libtool
           sudo apt-get install -y autoconf libtool m4
@@ -33,6 +34,8 @@ jobs:
           pip install cython
       - name: Check version
         run: |
+          sudo apt-cache search libtinfo
+
           echo "Проверяем PATH"
           
           echo "PATH: $PATH"
