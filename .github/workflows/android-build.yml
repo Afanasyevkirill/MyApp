@@ -66,6 +66,10 @@ jobs:
           sudo apt install -y zipalign
           sudo apt install -y adb
           sudo apt install -y libstdc++6 lib32z1
+          sudo apt install m4
+          sudo apt install automake
+          sudo apt install pkg-config
+
 
       # Step 5: Install Android SDK and NDK
       - name: Install Android SDK and NDK
@@ -91,6 +95,10 @@ jobs:
         run: |
           export LT_SYS_SYMBOL_USCORE=yes
           export M4_OPTIONS="-D__M4__"
+      - name: Run autoreconf manually
+        run: |
+          cd /path/to/your/project
+          autoreconf -i
 
       # Step 6: Build APK
       - name: Build APK
