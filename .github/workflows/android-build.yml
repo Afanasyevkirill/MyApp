@@ -48,20 +48,20 @@ jobs:
           rm commandlinetools-linux-6609375_latest.zip
           
           mkdir -p $HOME/android-sdk/tools/latest
-          mv $HOME/android-sdk-zip/tools/* $HOME/android-sdk/tools/latest/
+          mv $HOME/android-sdk-zip/tools/* $HOME/android-sdk/tools
 
           # Принимаем лицензии (обязательно перед установкой компонентов)
-          yes | $HOME/android-sdk/tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
+          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
 
           # Устанавливаем необходимые компоненты SDK
-          yes | $HOME/android-sdk/tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;19.2.5345600" # Заменил версии
+          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;19.2.5345600" # Заменил версии
           
       # Step 6: Build APK
       - name: Build APK
         run: |
           export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
-          ls -la $HOME/android-sdk/tools/latest/bin
+          export PATH=$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
+          ls -la $HOME/android-sdk/tools/bin
           buildozer android debug deploy run
 
       # Step 7: Archive APK file
