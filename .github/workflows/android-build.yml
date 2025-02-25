@@ -80,7 +80,10 @@ jobs:
 
           # Устанавливаем необходимые компоненты SDK
           yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;25.2.9519653" # Заменил версии
-          
+      - name: Apply m4_pattern_allow
+        run: |
+          echo "m4_pattern_allow([LT_SYS_SYMBOL_USCORE])" >> configure.ac
+    
       # Step 6: Build APK
       - name: Build APK
         run: |
