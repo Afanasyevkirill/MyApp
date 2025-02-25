@@ -54,13 +54,7 @@ jobs:
           ls -l /usr/bin/libtool
           autoconf --version
           libtool --version
-      - name: Checking autoconf file
-        run: |
-          libtoolize --force --copy
-          aclocal
-          autoconf
-          autoreconf -fiv
-          ./configure
+
       # Step 4: Install Android dependencies
       - name: Install Android dependencies
         run: |
@@ -93,8 +87,24 @@ jobs:
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
           ls -la $HOME/android-sdk/tools/bin
-          buildozer android debug deploy run
+          buildozer -v android debug 2>&1 | tee buildozer_output.log
+      - name: Find and display configure.ac
+        if: failure()  # Выполняется, если предыдущий шаг завершился с ошибкой
+        run: |
+          echo "Looking for configure.ac files in the build process..."
+          # Ищем configure.ac в директориях, которые использует buildozer
+          find . -name "configure.ac" -exec echo "Found configure.ac in {}" \; -exec cat {} \;
+          # Если он в подмодулях python-for-android
+          find ~/.buildozer -name "configure.ac" -exec echo "Found configure.ac in {}" \; -exec cat {} \;
 
+      - name: Upload logs
+        if: always()  # Выполняется всегда
+        uses: actions/upload-artifact@v3
+        with:
+          name: buildozer-logs
+          path: |
+            buildozer_output.log
+            buildozer.log
       # Step 7: Archive APK file
       - name: Archive APK
         uses: actions/upload-artifact@v4
