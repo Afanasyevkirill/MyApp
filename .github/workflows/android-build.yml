@@ -61,6 +61,7 @@ jobs:
         run: |
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          ls -la /home/runner/android-sdk/tools/bin
           buildozer android debug deploy run
 
       # Step 7: Archive APK file
