@@ -28,40 +28,42 @@ jobs:
           sudo apt install -y python3-dev build-essential git
           sudo apt install -y autoconf libtool
           sudo apt-get install -y autoconf libtool m4
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf=2.69-11 \
+            automake=1:1.16.1-4 \
+            libtool=2.4.6-14 \
+            gettext
+            libtinfo6
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install buildozer
           pip install cython
-      - name: List directories
-        run: |
-          ls -R /home/runner/work/
 
-      - name: Check version
-        run: |
-          sudo apt install libtinfo6
-          sudo apt install libncurses-dev
+      # - name: Check version
+      #   run: |
   
-          echo "Проверяем PATH"
+      #     echo "Проверяем PATH"
           
-          echo "PATH: $PATH"
-          if ! which libtool; then
-            echo "libtool not found in PATH, adding /usr/bin"
-            export PATH=$PATH:/usr/bin
-            echo "Updated PATH: $PATH" #Проверка, что PATH обновился.
-          fi
+      #     echo "PATH: $PATH"
+      #     if ! which libtool; then
+      #       echo "libtool not found in PATH, adding /usr/bin"
+      #       export PATH=$PATH:/usr/bin
+      #       echo "Updated PATH: $PATH" #Проверка, что PATH обновился.
+      #     fi
           
-          echo "Устанавливаем autoconf"
-          sudo apt install -y autoconf
-          echo "Скачиваем libtool"
-          sudo apt-get install -y libtool
-          echo "Проверяем, действительно ли скачался"
-          dpkg -l | grep libtool
-          echo "Смотрим, где находятся файлы libtool"
-          dpkg -L libtool
-          sudo ln -s /usr/bin/libtoolize /usr/bin/libtool
-          ls -l /usr/bin/libtool
-          autoconf --version
-          libtool --version
+      #     echo "Устанавливаем autoconf"
+      #     sudo apt install -y autoconf
+      #     echo "Скачиваем libtool"
+      #     sudo apt-get install -y libtool
+      #     echo "Проверяем, действительно ли скачался"
+      #     dpkg -l | grep libtool
+      #     echo "Смотрим, где находятся файлы libtool"
+      #     dpkg -L libtool
+      #     sudo ln -s /usr/bin/libtoolize /usr/bin/libtool
+      #     ls -l /usr/bin/libtool
+      #     autoconf --version
+      #     libtool --version
 
       # Step 4: Install Android dependencies
       - name: Install Android dependencies
@@ -103,8 +105,8 @@ jobs:
       # Step 6: Build APK
       - name: Build APK
         run: |
-          sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev automake
+          # sudo apt update
+          # sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev automake
 
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
