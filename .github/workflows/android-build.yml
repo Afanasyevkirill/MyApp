@@ -79,7 +79,7 @@ jobs:
           yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
 
           # Устанавливаем необходимые компоненты SDK
-          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;25.2.9519653" # Заменил версии
+          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;28.0.13004108" # Заменил версии
       - name: Apply m4_pattern_allow
         run: |
           echo "m4_pattern_allow([LT_SYS_SYMBOL_USCORE])" >> configure.ac
@@ -91,6 +91,9 @@ jobs:
       # Step 6: Build APK
       - name: Build APK
         run: |
+          sudo apt update
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev automake
+
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
           ls -la $HOME/android-sdk/tools/bin
