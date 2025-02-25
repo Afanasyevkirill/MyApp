@@ -1,125 +1,125 @@
-name: Build APK for Android 4.4
+# name: Build APK for Android 4.4
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
     
-    steps:
-      # Step 1: Clone the repository
-      - name: Checkout repository
-        uses: actions/checkout@v2
+#     steps:
+#       # Step 1: Clone the repository
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
         
-      # Step 2: Set up Python 3.8
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
+#       # Step 2: Set up Python 3.8
+#       - name: Set up Python 3.8
+#         uses: actions/setup-python@v2
+#         with:
+#           python-version: 3.8
 
-      # Step 3: Install build dependencies
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt upgrade
-          sudo apt install -y python3-dev build-essential git
-          sudo apt install -y autoconf libtool
-          sudo apt-get install -y autoconf libtool m4
-          sudo apt-get update
-          sudo apt-get install libtinfo6
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install buildozer
-          pip install cython
+#       # Step 3: Install build dependencies
+#       - name: Install dependencies
+#         run: |
+#           sudo apt update
+#           sudo apt upgrade
+#           sudo apt install -y python3-dev build-essential git
+#           sudo apt install -y autoconf libtool
+#           sudo apt-get install -y autoconf libtool m4
+#           sudo apt-get update
+#           sudo apt-get install libtinfo6
+#           python -m pip install --upgrade pip
+#           pip install -r requirements.txt
+#           pip install buildozer
+#           pip install cython
 
-      - name: Check version
-        run: |
+#       - name: Check version
+#         run: |
   
-          echo "Проверяем PATH"
+#           echo "Проверяем PATH"
           
-          echo "PATH: $PATH"
-          if ! which libtool; then
-            echo "libtool not found in PATH, adding /usr/bin"
-            export PATH=$PATH:/usr/bin
-            echo "Updated PATH: $PATH" #Проверка, что PATH обновился.
-          fi
+#           echo "PATH: $PATH"
+#           if ! which libtool; then
+#             echo "libtool not found in PATH, adding /usr/bin"
+#             export PATH=$PATH:/usr/bin
+#             echo "Updated PATH: $PATH" #Проверка, что PATH обновился.
+#           fi
           
-          echo "Устанавливаем autoconf"
-          sudo apt install -y autoconf
-          echo "Скачиваем libtool"
-          sudo apt-get install -y libtool
-          echo "Проверяем, действительно ли скачался"
-          dpkg -l | grep libtool
-          echo "Смотрим, где находятся файлы libtool"
-          dpkg -L libtool
-          sudo ln -s /usr/bin/libtoolize /usr/bin/libtool
-          ls -l /usr/bin/libtool
-          autoconf --version
-          libtool --version
+#           echo "Устанавливаем autoconf"
+#           sudo apt install -y autoconf
+#           echo "Скачиваем libtool"
+#           sudo apt-get install -y libtool
+#           echo "Проверяем, действительно ли скачался"
+#           dpkg -l | grep libtool
+#           echo "Смотрим, где находятся файлы libtool"
+#           dpkg -L libtool
+#           sudo ln -s /usr/bin/libtoolize /usr/bin/libtool
+#           ls -l /usr/bin/libtool
+#           autoconf --version
+#           libtool --version
 
-      # Step 4: Install Android dependencies
-      - name: Install Android dependencies
-        run: |
-          sudo apt install -y openjdk-8-jdk
-          sudo apt install -y zipalign
-          sudo apt install -y adb
-          sudo apt install -y libstdc++6 lib32z1
-          sudo apt install m4
-          sudo apt install automake
-          sudo apt install pkg-config
+#       # Step 4: Install Android dependencies
+#       - name: Install Android dependencies
+#         run: |
+#           sudo apt install -y openjdk-8-jdk
+#           sudo apt install -y zipalign
+#           sudo apt install -y adb
+#           sudo apt install -y libstdc++6 lib32z1
+#           sudo apt install m4
+#           sudo apt install automake
+#           sudo apt install pkg-config
 
 
-      # Step 5: Install Android SDK and NDK
-      - name: Install Android SDK and NDK
-        run: |
-          wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip # Пример старой версии
+#       # Step 5: Install Android SDK and NDK
+#       - name: Install Android SDK and NDK
+#         run: |
+#           wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip # Пример старой версии
           
-          unzip commandlinetools-linux-6609375_latest.zip -d $HOME/android-sdk-zip
+#           unzip commandlinetools-linux-6609375_latest.zip -d $HOME/android-sdk-zip
           
-          rm commandlinetools-linux-6609375_latest.zip
+#           rm commandlinetools-linux-6609375_latest.zip
           
-          mkdir -p $HOME/android-sdk/tools/latest
-          mv $HOME/android-sdk-zip/tools/* $HOME/android-sdk/tools
+#           mkdir -p $HOME/android-sdk/tools/latest
+#           mv $HOME/android-sdk-zip/tools/* $HOME/android-sdk/tools
 
-          # Принимаем лицензии (обязательно перед установкой компонентов)
-          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
+#           # Принимаем лицензии (обязательно перед установкой компонентов)
+#           yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
 
-          # Устанавливаем необходимые компоненты SDK
-          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;28.0.13004108" # Заменил версии
-      - name: Apply m4_pattern_allow
-        run: |
-          echo "m4_pattern_allow([LT_SYS_SYMBOL_USCORE])" >> configure.ac
-      - name: Set environment variables
-        run: |
-          export LT_SYS_SYMBOL_USCORE=yes
-          export M4_OPTIONS="-D__M4__"
+#           # Устанавливаем необходимые компоненты SDK
+#           yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-19" "build-tools;19.1.0" "ndk;28.0.13004108" # Заменил версии
+#       - name: Apply m4_pattern_allow
+#         run: |
+#           echo "m4_pattern_allow([LT_SYS_SYMBOL_USCORE])" >> configure.ac
+#       - name: Set environment variables
+#         run: |
+#           export LT_SYS_SYMBOL_USCORE=yes
+#           export M4_OPTIONS="-D__M4__"
 
-      # Step 6: Build APK
-      - name: Build APK
-        run: |
-          # sudo apt update
-          # sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev automake
+#       # Step 6: Build APK
+#       - name: Build APK
+#         run: |
+#           # sudo apt update
+#           # sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev automake
 
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
-          ls -la $HOME/android-sdk/tools/bin
-          buildozer -v android debug 2>&1 | tee buildozer_output.log
+#           export ANDROID_HOME=$HOME/android-sdk
+#           export PATH=$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
+#           ls -la $HOME/android-sdk/tools/bin
+#           buildozer -v android debug 2>&1 | tee buildozer_output.log
 
 
-      - name: Upload logs
-        if: always()  # Выполняется всегда
-        uses: actions/upload-artifact@v4
-        with:
-          name: buildozer-logs
-          path: |
-            buildozer_output.log
-            buildozer.log
-      # Step 7: Archive APK file
-      - name: Archive APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-apk
-          path: bin/*.apk
+#       - name: Upload logs
+#         if: always()  # Выполняется всегда
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: buildozer-logs
+#           path: |
+#             buildozer_output.log
+#             buildozer.log
+#       # Step 7: Archive APK file
+#       - name: Archive APK
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: android-apk
+#           path: bin/*.apk
