@@ -1,0 +1,104 @@
+name: Build and Deploy Kivy APK
+
+# Trigger the workflow on push or pull request to the main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build APK for Android
+    runs-on: ubuntu-latest  # Use Ubuntu as Buildozer requires a Linux environment
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Compatible with Kivy and Buildozer
+
+      # Step 3: Install Buildozer dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git zip unzip openjdk-11-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev build-essential
+          pip install --upgrade pip
+          pip install cython buildozer kivy
+
+      # Step 4: Initialize Buildozer spec file (if not already present)
+      - name: Initialize Buildozer
+        run: |
+          if [ ! -f buildozer.spec ]; then
+            buildozer init
+          fi
+
+      # Step 5: Build the APK with Buildozer
+      - name: Build APK
+        run: |
+          buildozer -v android debug
+        env:
+          # Optional: Set JAVA_HOME if needed (GitHub runners usually have this set)
+          JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+
+      # Step 6: Upload the APK as an artifact
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kivy-app-apk
+          path: bin/*.apk
+
+  # Optional: Deploy and test on an Android emulator (requires additional setup)
+  deploy-and-test:
+    name: Deploy and Test APK
+    needs: build  # Run after the build job completes
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository again (for consistency)
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Download the built APK
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: kivy-app-apk
+          path: bin/
+
+      # Step 3: Set up Android Emulator
+      - name: Set up Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30  # Android 11
+          target: default
+          arch: x86_64
+          profile: pixel_4
+          script: echo "Emulator is ready!"
+
+      # Step 4: Install and run the APK on the emulator
+      - name: Install and Run APK
+        run: |
+          adb install bin/*.apk
+          adb shell am start -n org.example.myapp/.MainActivity
+        env:
+          # Ensure ADB is available
+          PATH: ${{ env.PATH }}:/usr/local/android-sdk/platform-tools
+
+      # Step 5: Capture logs (optional, for debugging)
+      - name: Capture Emulator Logs
+        if: always()  # Run even if previous steps fail
+        run: |
+          adb logcat -d > emulator_logs.txt
+          cat emulator_logs.txt
+      - name: Upload Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-logs
+          path: emulator_logs.txt
