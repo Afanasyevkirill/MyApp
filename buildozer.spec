@@ -110,7 +110,7 @@ android.minapi = 19
 android.sdk = 19
 
 # (str) Android NDK version to use
-android.ndk = 25c
+android.ndk = 28
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
 android.ndk_api = 19
@@ -119,7 +119,7 @@ android.ndk_api = 19
 #android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
-android.ndk_path = /home/runner/android-sdk/ndk/19.2.5345600/
+android.ndk_path = /home/runner/android-sdk/ndk/28.0.13004108/
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
 android.sdk_path = /home/runner/android-sdk/
