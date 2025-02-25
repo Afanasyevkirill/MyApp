@@ -1,6 +1,5 @@
 name: Build and Deploy Kivy APK
 
-# Trigger the workflow on push or pull request to the main branch
 on:
   push:
     branches: [ main ]
@@ -10,7 +9,7 @@ on:
 jobs:
   build:
     name: Build APK for Android
-    runs-on: ubuntu-latest  # Use Ubuntu as Buildozer requires a Linux environment
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Checkout the repository code
@@ -21,78 +20,87 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # Compatible with Kivy and Buildozer
+          python-version: '3.9'
 
-      # Step 3: Install Buildozer dependencies
+      # Step 3: Install Buildozer dependencies including libtinfo6
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-11-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev build-essential
+          sudo apt install -y git zip unzip openjdk-11-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev build-essential libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
           pip install --upgrade pip
-          pip install cython buildozer kivy
+          pip install cython==0.29.36 buildozer kivy
 
-      # Step 4: Initialize Buildozer spec file (if not already present)
+      # Step 4: Install Android SDK and accept licenses
+      - name: Install Android SDK
+        run: |
+          # Install SDK tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O sdk-tools.zip
+          unzip -q sdk-tools.zip -d android-sdk
+          rm sdk-tools.zip
+          # Set environment variables
+          export ANDROID_SDK_ROOT=$PWD/android-sdk
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/bin
+          # Accept all licenses
+          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT "tools" "platform-tools" "build-tools;33.0.0" "platforms;android-33" "ndk;25.2.9519653"
+          sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses || true
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+
+      # Step 5: Initialize Buildozer spec file (if not already present)
       - name: Initialize Buildozer
         run: |
           if [ ! -f buildozer.spec ]; then
             buildozer init
           fi
 
-      # Step 5: Build the APK with Buildozer
+      # Step 6: Build the APK with Buildozer
       - name: Build APK
         run: |
           buildozer -v android debug
         env:
-          # Optional: Set JAVA_HOME if needed (GitHub runners usually have this set)
+          ANDROID_SDK_ROOT: $PWD/android-sdk
           JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
 
-      # Step 6: Upload the APK as an artifact
+      # Step 7: Upload the APK as an artifact
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: kivy-app-apk
           path: bin/*.apk
 
-  # Optional: Deploy and test on an Android emulator (requires additional setup)
   deploy-and-test:
     name: Deploy and Test APK
-    needs: build  # Run after the build job completes
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository again (for consistency)
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Download the built APK
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
           name: kivy-app-apk
           path: bin/
 
-      # Step 3: Set up Android Emulator
       - name: Set up Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30  # Android 11
+          api-level: 30
           target: default
           arch: x86_64
           profile: pixel_4
           script: echo "Emulator is ready!"
 
-      # Step 4: Install and run the APK on the emulator
       - name: Install and Run APK
         run: |
           adb install bin/*.apk
           adb shell am start -n org.example.myapp/.MainActivity
         env:
-          # Ensure ADB is available
           PATH: ${{ env.PATH }}:/usr/local/android-sdk/platform-tools
 
-      # Step 5: Capture logs (optional, for debugging)
       - name: Capture Emulator Logs
-        if: always()  # Run even if previous steps fail
+        if: always()
         run: |
           adb logcat -d > emulator_logs.txt
           cat emulator_logs.txt
