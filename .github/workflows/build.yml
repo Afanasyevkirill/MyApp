@@ -1,4 +1,4 @@
-name: Build and Deploy Kivy APK
+name: Build APK
 
 on:
   push:
@@ -9,104 +9,18 @@ on:
 jobs:
   build:
     name: Build APK for Android
-    runs-on: ubuntu-latest
-
+    runs-on: Ubuntu-22.04
     steps:
-      # Step 1: Checkout the repository code
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
-
-      # Step 2: Set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: '3.9'
-
-      # Step 3: Install Buildozer dependencies including libtinfo6
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip openjdk-11-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev build-essential libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
-          pip install --upgrade pip
-          pip install cython==0.29.36 buildozer kivy
-
-      # Step 4: Install Android SDK and accept licenses
-      - name: Install Android SDK
-        run: |
-          # Install SDK tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O sdk-tools.zip
-          unzip -q sdk-tools.zip -d android-sdk
-          rm sdk-tools.zip
-          # Set environment variables
-          export ANDROID_SDK_ROOT=$PWD/android-sdk
-          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/bin
-          # Accept all licenses
-          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT "tools" "platform-tools" "build-tools;33.0.0" "platforms;android-33" "ndk;25.2.9519653"
-          sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses || true
-        env:
-          JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-
-      # Step 5: Initialize Buildozer spec file (if not already present)
-      - name: Initialize Buildozer
-        run: |
-          if [ ! -f buildozer.spec ]; then
-            buildozer init
-          fi
-
-      # Step 6: Build the APK with Buildozer
-      - name: Build APK
-        run: |
-          buildozer -v android debug
-        env:
-          ANDROID_SDK_ROOT: $PWD/android-sdk
-          JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-
-      # Step 7: Upload the APK as an artifact
+          workdir: .
+          buildozer_version: stable
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: kivy-app-apk
-          path: bin/*.apk
-
-  deploy-and-test:
-    name: Deploy and Test APK
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Download APK Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: kivy-app-apk
-          path: bin/
-
-      - name: Set up Android Emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          target: default
-          arch: x86_64
-          profile: pixel_4
-          script: echo "Emulator is ready!"
-
-      - name: Install and Run APK
-        run: |
-          adb install bin/*.apk
-          adb shell am start -n org.example.myapp/.MainActivity
-        env:
-          PATH: ${{ env.PATH }}:/usr/local/android-sdk/platform-tools
-
-      - name: Capture Emulator Logs
-        if: always()
-        run: |
-          adb logcat -d > emulator_logs.txt
-          cat emulator_logs.txt
-      - name: Upload Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: emulator-logs
-          path: emulator_logs.txt
+          path: ${{ steps.buildozer.outputs.filename }}
