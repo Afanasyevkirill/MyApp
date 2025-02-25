@@ -54,6 +54,13 @@ jobs:
           ls -l /usr/bin/libtool
           autoconf --version
           libtool --version
+      - name: Checking autoconf file
+        run: |
+          libtoolize --force --copy
+          aclocal
+          autoconf
+          autoreconf -fiv
+          ./configure
       # Step 4: Install Android dependencies
       - name: Install Android dependencies
         run: |
