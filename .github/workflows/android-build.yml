@@ -34,17 +34,19 @@ jobs:
       - name: Check version
         run: |
           echo "Проверяем PATH"
-
+          
           echo "PATH: $PATH"
           if ! which libtool; then
             echo "libtool not found in PATH, adding /usr/bin"
             export PATH=$PATH:/usr/bin
             echo "Updated PATH: $PATH" #Проверка, что PATH обновился.
           fi
-          ls -l /usr/bin/libtool
+          
           echo "Устанавливаем autoconf"
           sudo apt install -y autoconf
-          sudo apt-get install -y libtool
+          # sudo apt-get install -y libtool
+          sudo apt-get install -o Debug::pkgProblemResolver=yes -y libtool
+          ls -l /usr/bin/libtool
           autoconf --version
           libtool --version
       # Step 4: Install Android dependencies
