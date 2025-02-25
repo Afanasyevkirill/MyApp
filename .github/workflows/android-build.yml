@@ -44,8 +44,12 @@ jobs:
           
           echo "Устанавливаем autoconf"
           sudo apt install -y autoconf
-          # sudo apt-get install -y libtool
-          sudo apt-get install -o Debug::pkgProblemResolver=yes -y libtool
+          echo "Скачиваем libtool"
+          sudo apt-get install -y libtool
+          echo "Проверяем, действительно ли скачался"
+          dpkg -l | grep libtool
+          echo "Смотрим, где находятся файлы libtool"
+          dpkg -L libtool
           ls -l /usr/bin/libtool
           autoconf --version
           libtool --version
